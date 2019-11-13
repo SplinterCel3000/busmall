@@ -4,21 +4,36 @@ var pictureStorage = [];
 var randomPictures = [];
 var clickCounter = 0;
 var MAX_CLICKS = 25;
+// var oldPictures = []
+
 
 function getRandomPicture(){
     return Math.floor(Math.random() *(pictureStorage.length));
 }
 
+
+var oldPictures = [];
 function selectAndRender(){
     randomPictures = [];
+    
 
-    while(randomPictures.length < 3){
+    while(randomPictures.length < 3 ){
         var nextValue = getRandomPicture();
+        // oldPictures.push(nextValue);
 
-        if(!randomPictures.includes(nextValue)){
-            randomPictures.push(nextValue);
+        if(nextValue === oldPictures[0] || nextValue === oldPictures[1] || nextValue === oldPictures[2]){
+             nextValue = getRandomPicture();
         }
+
+        else if(!randomPictures.includes(nextValue)){
+            randomPictures.push(nextValue);
+            
+        }
+        
     }
+    oldPictures = randomPictures;
+    // console.log(randomPictures);
+    // console.log(oldPictures);
 
     var placeholder0 = document.getElementById('placeholder-0');
     var placeholder1 = document.getElementById('placeholder-1');
@@ -26,10 +41,23 @@ function selectAndRender(){
     
 
     pictureStorage[randomPictures[0]].render(placeholder0);
+    pictureStorage[randomPictures[0]].timeShown++;
     pictureStorage[randomPictures[1]].render(placeholder1);
+    pictureStorage[randomPictures[1]].timeShown++;
     pictureStorage[randomPictures[2]].render(placeholder2);
+    pictureStorage[randomPictures[2]].timeShown++
 
+
+
+
+
+    // console.log(oldPictures);
 }
+
+// oldPictures[0] =  pictureStorage[randomPictures[0]];
+// oldPictures[1] =  pictureStorage[randomPictures[1]];
+// oldPictures[2] =  pictureStorage[randomPictures[2]];
+
 
 var Picture = function(name, picture){
     this.name = name;
@@ -85,13 +113,17 @@ function clickManager(event){
 
         selectAndRender();
     } else{
-        alert('your done');
+        createSaleChart();
+        // alert('your done');
+        //finalResult();
+        
     }
+    
 }
 
 selectAndRender();
 //alert('hello');
-console.log('hi');
+// console.log('hi');
 
 var placeholder0 = document.getElementById('placeholder-0');
 var placeholder1 = document.getElementById('placeholder-1');
@@ -102,4 +134,61 @@ placeholder0.addEventListener('click', clickManager);
 placeholder1.addEventListener('click', clickManager);
 placeholder2.addEventListener('click', clickManager);
 
-console.log();
+// function finale(){
+// for(var data = 0; data > pictureStorage.length; data++){
+//     var index = `Product name ${pictureStorage[data].name} had ${pictureStorage[data].timesClicked} clicks and was shown ${pictureStorage[data].timeShown} times`
+//     document.write(index);
+//     document.write("<br>");
+
+// }
+// }
+// finale();
+
+function finalResult() {
+    for (var Index = 0; Index < pictureStorage.length; Index++) {
+      var statement = 'The product ' + pictureStorage[Index].name + ' had ' + pictureStorage[Index].timesClicked + ' votes and was shown ' + pictureStorage[Index].timeShown + ' times.\n'
+      document.write(statement);
+      document.write("<br>");
+    }
+}
+
+function createSaleChart() {
+    var nameArray = [];
+    var clickArray = [];
+  
+    for(var i = 0; i < pictureStorage.length; i++) {
+      nameArray.push(pictureStorage[i].name);
+      clickArray.push(pictureStorage[i].timesClicked);
+    }
+  
+    var context = document.getElementById('chart').getContext('2d');
+    var saleChart = new Chart(context, {
+      type: 'bar',
+      data: {
+        labels: nameArray,
+        datasets: [
+          {
+            label: 'Sale Clicks',
+            data: clickArray,
+            backgroundColor: 'rgb(255,99,132)',
+            borderColor: 'rgb(255,99,132)',
+          },
+          {
+            label: 'Sale Clicks',
+            data: clickArray,
+          }
+        ],
+      },
+      options: {
+        scales: {
+          yAxes: [
+            {
+              ticks: {
+                beginAtZero: true,
+              }
+            },
+          ],
+        }
+      },
+    });
+  }
