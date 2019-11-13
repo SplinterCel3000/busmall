@@ -1,5 +1,6 @@
 'use strict';
 
+var PICTURE_DATA = 'picture data';
 var pictureStorage = [];
 var randomPictures = [];
 var clickCounter = 0;
@@ -62,6 +63,9 @@ function selectAndRender(){
 var Picture = function(name, picture){
     this.name = name;
     this.picture = picture;
+    //-------------------------------------------------------------------------------------------------
+    // this information is what we want to preserve. 
+    //-------------------------------------------------------------------------------------------------
     this.timesClicked = 0;
     this.timeShown = 0;
 
@@ -70,10 +74,23 @@ var Picture = function(name, picture){
     }
 
     this.render = function(domReference){
-        domReference.src = picture;
+        domReference.src = this.picture;
     }
-    pictureStorage.push(this);
+
+    this.loadData = function(data) {
+        this.name = data.name; 
+        this.picture = data.picture;
+        this.timesClicked = data.timesClicked;
+        this.timeShown = data.timeShown;
+       
+        
+
+
+    }
+    // pictureStorage.push(this);
 }
+
+if(localStorage.getItem(PICTURE_DATA) === null) {
 
 var bag = new Picture('bag', './assets/bag.jpg');
 var banana = new Picture('banana', './assets/banana.jpg');
@@ -96,6 +113,40 @@ var wineglass = new Picture('wine-glass', './assets/wine-glass.jpg');
 var usb = new Picture('usb', './assets/usb.gif');
 var petsweep = new Picture('pet-sweep', './assets/pet-sweep.jpg');
 
+
+pictureStorage.push(bag);
+pictureStorage.push(banana);
+pictureStorage.push(bathroom);
+pictureStorage.push(boots);
+pictureStorage.push(breakfast);
+pictureStorage.push(bubblegum);
+pictureStorage.push(chair);
+pictureStorage.push(cthulhu);
+pictureStorage.push(dogduck);
+pictureStorage.push(dragon);
+pictureStorage.push(pen);
+pictureStorage.push(scissors);
+pictureStorage.push(shark);
+pictureStorage.push(sweep);
+pictureStorage.push(tauntaun);
+pictureStorage.push(unicorn);
+pictureStorage.push(watercan);
+pictureStorage.push(wineglass);
+pictureStorage.push(usb);
+pictureStorage.push(petsweep);
+} else {
+    var jsonData = localStorage.getItem(PICTURE_DATA);
+    var data = JSON.parse(jsonData);
+
+    for(var JSONIndex = 0; JSONIndex < data.length; JSONIndex++){
+        var newPicture = new Picture('','');
+
+        newPicture.loadData(data[JSONIndex]);
+        pictureStorage.push(newPicture);
+    }
+}
+
+
 function clickManager(event){
     clickCounter++;
     if(clickCounter < MAX_CLICKS){
@@ -113,12 +164,18 @@ function clickManager(event){
 
         selectAndRender();
     } else{
+        savePictureDataLocal();
         createSaleChart();
         // alert('your done');
         //finalResult();
         
     }
     
+    function savePictureDataLocal() {
+        var jsonData = JSON.stringify(pictureStorage);
+
+        localStorage.setItem(PICTURE_DATA, jsonData);
+    }
 }
 
 selectAndRender();
@@ -155,10 +212,12 @@ function finalResult() {
 function createSaleChart() {
     var nameArray = [];
     var clickArray = [];
+    var showArrary = [];
   
     for(var i = 0; i < pictureStorage.length; i++) {
       nameArray.push(pictureStorage[i].name);
       clickArray.push(pictureStorage[i].timesClicked);
+      showArrary.push(pictureStorage[i].timeShown);
     }
   
     var context = document.getElementById('chart').getContext('2d');
@@ -174,8 +233,8 @@ function createSaleChart() {
             borderColor: 'rgb(255,99,132)',
           },
           {
-            label: 'Sale Clicks',
-            data: clickArray,
+            label: 'Times Shown',
+            data: showArrary,
           }
         ],
       },
